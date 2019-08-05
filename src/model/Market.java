@@ -1,10 +1,7 @@
-package TradingMakesMoney;
+package model;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.ArrayList;
 
 
 public abstract class Market {

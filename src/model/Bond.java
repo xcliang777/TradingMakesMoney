@@ -1,7 +1,6 @@
-package TradingMakesMoney;
+package model;
 
 import java.util.Date;
-import java.util.Calendar;
 
 public class Bond {
 	private Date dateBought;
