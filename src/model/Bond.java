@@ -1,22 +1,23 @@
 package model;
 
 import java.util.Date;
+import java.util.*;
 
-public class Bond {
+import java.util.Calendar;
+
+public abstract class Bond {
 	private Date dateBought;
-	private Date maturityDate;
 	private String issuer;
 	private double yield;
 	private double price;
 	//private double arrears;
 	//private double interest rate;
 	
-	Bond(String name, double p, double ir, String type) {
+	Bond(String name, double p, double ir) {
 		issuer = name;
 		price = p;
 		yield = ir;
-		
-		//Way to diff b/w bonds will be added with a case statement probably
+		dateBought = Market.today;
 	}
 	
 	//public double getInterestRate() {}
@@ -39,14 +40,33 @@ public class Bond {
 		return dateBought;
 	}
 	
-	public Date dateDue() {
-		return maturityDate;
+	public boolean updatePrice(double newPrice) {
+		if(newPrice < 0) {
+			return false;
+		}
+		price = newPrice;
+		return true;
 	}
 	
-	public boolean isTotalDue() {
-		//check if today's date is the same as maturity date.
+	public boolean updateYield(double newYield) {
+		if ( newYield < 0) {
+			return false;
+		}
+		yield = newYield;
+		return true;
+	}
+	
+	public boolean equals(Bond toComp) {
+		if((issuer.equals(toComp.getIssuer())) && (price == toComp.getPrice()) && (yield == toComp.getYield())) {
+			return true;
+		}
+		
 		return false;
 	}
+	
+	abstract public Date dateDue();
+	
+	abstract public boolean isTotalDue();
 	
 
 }
