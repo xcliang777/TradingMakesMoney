@@ -109,6 +109,7 @@ public class DBHelper {
             e.printStackTrace();
         }
 
+
         ///2.get buy price and calculate benefit.
         double benefit = 0;
         int shareHas =0;
@@ -145,6 +146,7 @@ public class DBHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
 
         ///3.update trasactionn table
         try {
@@ -229,7 +231,53 @@ public class DBHelper {
         return sb.toString();
     }
 
+    public static Double getUnrealizedBenefit(Date date) throws SQLException {
+        double unrealizedBenefit=0;
+        double buyPrice;
+        String ticker;
+        int numShare;
+        double marketPrice;
 
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from investorStock";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                ticker = rs.getString("ticker");
+                buyPrice = rs.getDouble("buyPrice");
+                numShare = rs.getInt("numShare");
+                marketPrice = getMarketPrice(ticker, date);
+
+                unrealizedBenefit += numShare * (marketPrice - buyPrice);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return unrealizedBenefit;
+    }
+
+
+    private static double getMarketPrice(String ticker, Date date) {
+        double marketPrice = 0;
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockMarket where ticker=? and Date=?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, ticker);
+            ptmt.setDate(2, date);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()) {
+                marketPrice = rs.getDouble("Price");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return marketPrice;
+    }
 
     /**
      * used for method investorSellStockin this class

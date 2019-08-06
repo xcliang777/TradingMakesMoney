@@ -15,8 +15,10 @@ public class Test {
         Date d2 = dateFormat.parse("2019-11-11");
         acc.buyStock("aapl", 20, d1);
         double a = acc.sellStock("aapl", 10, d2);
-        //acc.getAllStock();
-        acc.getAllTransaction();
+        String strAllStock = acc.getAllStock();
+        System.out.println(strAllStock);
+        //acc.getAllTransaction();
+        double unrealizedBenefit = acc.getUnrealizedBenefit(d2);
 
         ///How to deal with date
 //        Date d1 = new Date();

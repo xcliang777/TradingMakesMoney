@@ -27,7 +27,6 @@ public class SecurityAccount extends Account {
         this.unrealizedBenefit = 0;
     }
 
-
     /**
      * Allow investor buy one stock through the ticker, and this record will be written in database.
      * @param ticker: like AAPL.
@@ -81,6 +80,13 @@ public class SecurityAccount extends Account {
         return realizedBenefit;
     }
 
+    public double getUnrealizedBenefit(Date date) throws SQLException {
+        DBHelper helper = new DBHelper();
+        Date date1= new java.sql.Date(date.getTime());
+        return helper.getUnrealizedBenefit((java.sql.Date) date1);
+
+    }
+
     /**
      * get all stock information of a investor.
      * @return a string of all stock investor has.
@@ -88,7 +94,6 @@ public class SecurityAccount extends Account {
     public String getAllStock() {
         DBHelper helper = new DBHelper();
         String str = helper.getAllStock();
-        //System.out.println(str);
         return str;
     }
 
