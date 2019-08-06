@@ -259,7 +259,7 @@ public class DBHelper {
     }
 
 
-    private static double getMarketPrice(String ticker, Date date) {
+    public static double getMarketPrice(String ticker, Date date) {
         double marketPrice = 0;
         try {
             Connection conn = DB.getConnection();
@@ -279,6 +279,25 @@ public class DBHelper {
         return marketPrice;
     }
 
+    public static String getCompanyName(String ticker) {
+        String companyName="";
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockMarket where ticker=?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, ticker);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()) {
+                companyName = rs.getString("CompanyName");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return companyName;
+
+    }
     /**
      * used for method investorSellStockin this class
      * @param ticker

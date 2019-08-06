@@ -37,8 +37,13 @@ public class SecurityAccount extends Account {
      */
     public boolean buyStock(String ticker, int numShare, Date date) throws SQLException{
         ///1. get the market price of this stock.(and companyName)
-        double stockPrice = 98;
-        String companyName = "aaaa";
+        DBHelper helper = new DBHelper();
+        Date date1= new java.sql.Date(date.getTime());
+
+        double stockPrice;
+        String companyName ;
+        stockPrice = helper.getMarketPrice(ticker, (java.sql.Date) date1);
+        companyName = helper.getCompanyName(ticker);
 
         ///2.update balance
         double totalPrice = stockPrice *numShare;
@@ -49,12 +54,10 @@ public class SecurityAccount extends Account {
         }
 
         ///3. write in table investorStock.
-        DBHelper helper = new DBHelper();
         ///write in table investorStock first
         helper.addInvestorStock(ticker, "APPLE", numShare, stockPrice);
 
         ///write in table stockTransaction
-        Date date1= new java.sql.Date(date.getTime());
         helper.addInvestorTransaction("buy", ticker, companyName, stockPrice, numShare, (java.sql.Date) date1, 0);
 
         return true;
