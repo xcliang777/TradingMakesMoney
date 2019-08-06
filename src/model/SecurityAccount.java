@@ -1,5 +1,6 @@
 package model;
 
+import Database.DB;
 import Database.DBHelper;
 
 import java.sql.SQLException;
@@ -27,7 +28,6 @@ public class SecurityAccount extends Account {
         this.unrealizedBenefit = 0;
     }
 
-
     /**
      * Allow investor buy one stock through the ticker, and this record will be written in database.
      * @param ticker: like AAPL.
@@ -38,8 +38,13 @@ public class SecurityAccount extends Account {
      */
     public boolean buyStock(String ticker, int numShare, Date date) throws SQLException{
         ///1. get the market price of this stock.(and companyName)
-        double stockPrice = 98;
-        String companyName = "aaaa";
+        DBHelper helper = new DBHelper();
+        Date date1= new java.sql.Date(date.getTime());
+
+        double stockPrice;
+        String companyName ;
+        stockPrice = helper.getMarketPrice(ticker, (java.sql.Date) date1);
+        companyName = helper.getCompanyName(ticker);
 
         ///2.update balance
         double totalPrice = stockPrice *numShare;
@@ -50,12 +55,10 @@ public class SecurityAccount extends Account {
         }
 
         ///3. write in table investorStock.
-        DBHelper helper = new DBHelper();
         ///write in table investorStock first
         helper.addInvestorStock(ticker, "APPLE", numShare, stockPrice);
 
         ///write in table stockTransaction
-        Date date1= new java.sql.Date(date.getTime());
         helper.addInvestorTransaction("buy", ticker, companyName, stockPrice, numShare, (java.sql.Date) date1, 0);
 
         return true;
@@ -81,6 +84,13 @@ public class SecurityAccount extends Account {
         return realizedBenefit;
     }
 
+    public double getUnrealizedBenefit(Date date) throws SQLException {
+        DBHelper helper = new DBHelper();
+        Date date1= new java.sql.Date(date.getTime());
+        return helper.getUnrealizedBenefit((java.sql.Date) date1);
+
+    }
+
     /**
      * get all stock information of a investor.
      * @return a string of all stock investor has.
@@ -88,7 +98,6 @@ public class SecurityAccount extends Account {
     public String getAllStock() {
         DBHelper helper = new DBHelper();
         String str = helper.getAllStock();
-        //System.out.println(str);
         return str;
     }
 
@@ -103,13 +112,15 @@ public class SecurityAccount extends Account {
         System.out.println(str);
         return str;
     }
-//
-//
+
+
 //    private boolean buyBond(Bond bond, Date date) {
-//
 //    }
-//
-//    private boolean checkBondExpire(Bond bond, Date date) {
-//
-//    }
+
+    public boolean sellBond
+
+    public void deleteDatabaseIfo() throws SQLException{
+        DBHelper helper = new DBHelper();
+        helper.deleteDatabaseIfo();
+    }
 }

@@ -28,6 +28,25 @@ public class Investor extends Person {
     }
 
     /**
+     * If true = change values from checking account
+     * Else return false
+     * @param amount
+     * @return
+     */
+    public boolean Transfer(double amount) {
+        double checkingBalance = this.getCheckingAccount().getBalance();
+        double securityBalance = this.getSecurityAccount().getBalance();
+        //return false if transfer too much
+        if (amount > checkingBalance) {
+            return false;
+        }
+        this.getCheckingAccount().setBalance(checkingBalance - amount);
+        this.getSecurityAccount().setBalance(securityBalance + amount);
+
+        return true;
+    }
+
+    /**
      * Methods below are getter and setter method for different account
      */
     public SavingAccount getSavingAccount() {

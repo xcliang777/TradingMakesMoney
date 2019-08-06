@@ -1,5 +1,7 @@
 package model;
 
+import Database.DBHelper;
+
 /**
  * @description: Manager extends Person. Manager has the authority to see all transactions.
  **/
@@ -11,14 +13,19 @@ public class Manager extends Person {
         super(id, passWord);
     }
 
-    /**
-     * @Description:  When manager wants to see all the transactions
-     * @Param:
-     * @return: java.lang.String
-     */
-    public void seeAllTransaction() {
 
+    /**
+     * Manager can see all transactions in the market.
+     * @return
+     */
+    public String seeAllStockTransaction() {
+        DBHelper helper = new DBHelper();
+        String str = helper.getAllStock();
+        //System.out.println(str);
+        return str;
     }
+
+
 
 
 
