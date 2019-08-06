@@ -1,5 +1,5 @@
 # TradingMakesMoney
 
-To use the database, we have to change the user and password of each one's database.
-
-In file: TradingMakesMoney/src/Database/DB.java (String URL)
+## Use online database(terminal)
+$ mysql -h sql9.freemysqlhosting.net -u sql9301008 -p -P3306
+password: pTsCTEK2QA
