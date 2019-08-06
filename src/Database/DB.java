@@ -9,7 +9,7 @@ import java.sql.Statement;
 
 public class DB {
     ///private static final String URL = "jdbc:mysql://localhost:3306/card_meal?characterEncoding=UTF-8&serverTimezone=GMT";
-    private static final String URL = "jdbc:mysql://localhost:3306/Trade?characterEncoding=UTF-8&serverTimezone=GMT&user=root&password=LXC123danny";
+    private static final String URL = "jdbc:mysql://localhost:3306/Trade?characterEncoding=UTF-8&serverTimezone=GMT&user=root&password=";
 //    private static final String USER = "root";//
 //    private static final String PASSWORD = "";
 
