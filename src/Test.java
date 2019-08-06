@@ -19,6 +19,7 @@ public class Test {
         System.out.println(strAllStock);
         //acc.getAllTransaction();
         double unrealizedBenefit = acc.getUnrealizedBenefit(d2);
+        System.out.println(unrealizedBenefit);
 
         ///How to deal with date
 //        Date d1 = new Date();
