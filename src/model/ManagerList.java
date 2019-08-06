@@ -27,10 +27,7 @@ public class ManagerList {
                 return manager;
             }
         }
-
         return null;
     }
-
-
 
 }

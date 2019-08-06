@@ -1,5 +1,6 @@
 package model;
 
+import Database.DB;
 import Database.DBHelper;
 
 import java.sql.SQLException;
@@ -120,4 +121,9 @@ public class SecurityAccount extends Account {
 //    private boolean checkBondExpire(Bond bond, Date date) {
 //
 //    }
+
+    public void deleteDatabaseIfo() throws SQLException{
+        DBHelper helper = new DBHelper();
+        helper.deleteDatabaseIfo();
+    }
 }

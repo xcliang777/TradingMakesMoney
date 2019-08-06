@@ -21,7 +21,7 @@ public class InvestorList {
      * @param password
      * @return
      */
-    public Investor findInvestor(String id, String password) {
+    public Investor checkInvestorIdentity(String id, String password) {
         for (Investor investor : investorList) {
             if (investor.getId().equals(id) && investor.getPassWord().equals(password)) {
                 return investor;

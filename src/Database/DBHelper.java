@@ -294,10 +294,28 @@ public class DBHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return companyName;
-
     }
+
+    public static void deleteDatabaseIfo() {
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql1 = "delete from investorStock";
+            PreparedStatement ptmt1 = conn.prepareStatement(sql1);
+            ptmt1.execute();
+
+            String sql2 = "delete from stockTrasaction";
+            PreparedStatement ptmt2 = conn.prepareStatement(sql2);
+            ptmt2.execute();
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * used for method investorSellStockin this class
      * @param ticker
