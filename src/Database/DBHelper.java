@@ -431,8 +431,57 @@ public class DBHelper {
         return amount;
     }
 
-    public static void sellBond(String bondID, Date sellDate) {
+    public static void sellBond(String bondID, Date sellDate, double sellAmount) throws SQLException{
 
+
+        ///delete line in investorBond
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql = "delete from investorBond where bondID=?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, bondID);
+            ptmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        ///get companyname,type
+        String companyName="";
+        String type="";
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from investorBond";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                companyName = rs.getString("companName");
+                type = rs.getString("type");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        ///add line in bondTransaction
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql = "insert into bondTransaction values(?,?,?,?,?,?)";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, "sell");
+            ptmt.setString(2, bondID);
+            ptmt.setString(3, companyName);
+            ptmt.setString(4, type);
+            ptmt.setDouble(5, sellAmount);
+            ptmt.setDate(6, sellDate);
+
+            ptmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 
