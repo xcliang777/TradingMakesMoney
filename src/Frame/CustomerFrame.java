@@ -1,6 +1,9 @@
 package Frame;
 
 import javax.swing.*;
+
+import model.Investor;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,7 +36,7 @@ public class CustomerFrame extends JFrame implements ActionListener {
 
 
 
-    CustomerFrame(){
+    CustomerFrame(Investor a){
 
         jPanel1.setBounds(0,0,800,120);
         jPanel2.setBounds(0,120,800,120);

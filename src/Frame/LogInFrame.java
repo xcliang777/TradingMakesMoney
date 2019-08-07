@@ -8,6 +8,10 @@ import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
+
+import model.InvestorList;
+import model.ManagerList;
+
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
 import java.awt.Font;
@@ -125,7 +129,7 @@ public class LogInFrame {
 		JSpinner spinner  = new JSpinner(new SpinnerDateModel());
 		spinner.setEditor(new JSpinner.DateEditor(spinner, model.toPattern()));
 		spinner.setBounds(328, 378, 144, 44);
-		int day =spinner.getValue();
+		int day =(int) spinner.getValue();
 		panel.add(spinner);
 		
 		
@@ -135,13 +139,15 @@ public class LogInFrame {
 				String username = textPane.getText();
 				String password = passwordField.getText();
 				
-				if(checkManagerIdentity(username, password) != null) {
+				
+				if(ManagerList.checkManagerIdentity(username, password) != null) {
 					//OPEN NEW JFRAME FOR MANAGER
+					ManagerFrame manager = new ManagerFrame(ManagerList.checkManagerIdentity(username, password));
 					frame.dispose();
 				}
-				else if(checkInvestorIdentity(username, password) !- null) {
+				else if(InvestorList.checkInvestorIdentity(username, password) != null) {
 					//OPEN NEW JFRAME FOR INVESTOR
-					
+					CustomerFrame customer = new CustomerFrame(InvestorList.checkInvestorIdentity(username, password));
 					frame.dispose();
 				}
 				else
