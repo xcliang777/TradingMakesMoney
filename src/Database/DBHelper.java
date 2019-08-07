@@ -2,6 +2,9 @@ package Database;
 
 import java.sql.*;
 import java.util.Calendar;
+import java.util.concurrent.ThreadLocalRandom;
+
+import model.*;
 
 /**
  * This is a helper class writig data into database.
@@ -30,6 +33,108 @@ public class DBHelper {
         }
     }
 
+    public static void addMarketStock(Date date, String companyName, String ticker, double price) throws SQLException{
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql = "insert into stockMarket values(?,?,?,?)";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setDate(1, date);
+            ptmt.setString(2, companyName);
+            ptmt.setString(3, ticker);
+            ptmt.setDouble(4, price);
+            ptmt.execute();
+
+            //System.out.println("succeed");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addMarketBond(String companyName, String type, double yield, double price, String bondID) throws SQLException{
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql = "insert into bondMarket values(?,?,?,?,?)";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, companyName);
+            ptmt.setString(2, type);
+            ptmt.setDouble(3, yield);
+            ptmt.setDouble(4, price);
+            ptmt.setString(5, bondID);
+            ptmt.execute();
+
+            //System.out.println("succeed");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Will return a copy of the bond that represents the bondID
+     * If the market doesn't contain that bond, it will return an empty bond.
+     */
+    public static Bond getMarketBond(String bondID) throws SQLException{
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from bondMarket";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                String toComp = rs.getString("bondID");
+                double yield = rs.getDouble("yield");
+                double price = rs.getDouble("price");
+                String name = rs.getString("companyName");
+                String type = rs.getString("type");
+
+
+                if (toComp.equals(bondID)) {
+                    if(type.equalsIgnoreCase("OneWkBond")) {
+                        return new model.OneWkBond(name, bondID, price, yield);
+                    }
+                    else if (type.equalsIgnoreCase("OneMonthBond")) {
+                        return new model.OneMonthBond(name, bondID, price, yield);
+                    }
+                    else {
+                        return new model.ThreeMonthBond(name, bondID, price, yield);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return new model.OneWkBond("empty", "empty", 0.0, 0.0);
+    }
+
+    public static Stock getMarketStock(String ticker) throws SQLException{
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockMarket";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                String toComp = rs.getString("Ticker");
+                double price = rs.getDouble("Price");
+                String name = rs.getString("CompanyName");
+                Date date = rs.getDate("Date");
+
+
+                if (toComp.equals(ticker)) {
+                    return new model.Stock(ticker, name, price);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return new model.Stock("empty", "empty", 0.0);
+    }
+
     public static void addInvestorTransaction(String buyOrSell, String ticker, String companyName, double price, int numShare, Date date, double benefit) throws SQLException {
         try {
             Connection conn = DB.getConnection();
@@ -50,6 +155,190 @@ public class DBHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean marketHasStock(String toCompTicker) throws SQLException {
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockMarket";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            //Needs to be fixed.
+            while(rs.next()){
+                //get fields
+                String ticker = rs.getString("Ticker");
+
+                if(ticker.equals(toCompTicker)) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public static boolean marketHasBond(String toCompBondID) throws SQLException {
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from bondMarket";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            //Needs to be fixed.
+            while(rs.next()){
+                //get fields
+                String bondID = rs.getString("bondID");
+
+                if(bondID.equals(toCompBondID)) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void updateStockMarket(Date newDate) throws SQLException {
+        StringBuilder sb = new StringBuilder();
+        Date date;
+        String companyName;
+        String ticker;
+        double price;
+
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockMarket";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            //Needs to be fixed.
+            while(rs.next()){
+                //get fields
+                date = rs.getDate("Date");
+                companyName = rs.getString("CompanyName");
+                ticker = rs.getString("Ticker");
+                price = rs.getDouble("Price");
+
+                //calculate the newPrice
+                double randPercent = ThreadLocalRandom.current().nextDouble(-0.05, 0.05);
+                randPercent = Math.round(randPercent * 10000.0)/ 10000.0;
+                double newPrice = (price * randPercent) + price;
+
+                rs.updateDate("Date", newDate);
+                rs.updateDouble("Price", newPrice);
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateBondMarket() throws SQLException {
+        StringBuilder sb = new StringBuilder();
+        Date newDate;
+        String bondID;
+        String companyName;
+        double price;
+        String type;
+        double yield;
+
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from bondMarket";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            //Needs to be fixed.
+            while(rs.next()){
+                //get fields
+                companyName = rs.getString("companyName");
+                type = rs.getString("type");
+                yield = rs.getDouble("yield");
+                price = rs.getDouble("price");
+                bondID = rs.getString("bondID");
+
+                //calculate new price and yield
+                double randPercent = ThreadLocalRandom.current().nextDouble(-0.05, 0.05);
+                randPercent = Math.round(randPercent * 10000.0)/ 10000.0;
+                double newPrice = (price * randPercent) + price;
+                double newYield = yield;
+
+                //if the percent change in price is negative, yield should go up and vice versa
+                if ((newYield - randPercent) <= 0) {
+                    newYield = 0.01;
+                }
+                else {
+                    newYield -= randPercent;
+                }
+
+                //update table
+                rs.updateDouble("price", newPrice);
+                rs.updateDouble("yield", newYield);
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getAllMarketStock() {
+        StringBuilder sb = new StringBuilder();
+        Date date;
+        String companyName;
+        String ticker;
+        double price;
+
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockMarket";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                date = rs.getDate("Date");
+                companyName = rs.getString("CompanyName");
+                ticker = rs.getString("Ticker");
+                price = rs.getDouble("Price");
+                sb.append("date: " + date + ", companyName: " + companyName + ", ticker: " + ticker +
+                        ", price: " + price + ".\n");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+    public static String getAllMarketBond() {
+        StringBuilder sb = new StringBuilder();
+        String companyName;
+        String type;
+        double yield;
+        double price;
+        String bondID;
+
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from bondMarket";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                companyName = rs.getString("companyName");
+                type = rs.getString("type");
+                yield = rs.getDouble("yield");
+                price = rs.getDouble("price");
+                bondID = rs.getString("bondID");
+                sb.append("companyName: " + companyName + ", type: " + type +
+                        ", yield: " + yield + ", price: " + price + ", bondID: " + bondID + ".\n");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
     }
 
     /**
