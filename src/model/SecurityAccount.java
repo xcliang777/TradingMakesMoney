@@ -111,7 +111,7 @@ public class SecurityAccount extends Account {
     }
 
 
-    private boolean buyBond(Double amount, String bondID, Date date) throws SQLException{
+    public boolean buyBond(Double amount, String bondID, Date date) throws SQLException{
         ///1.update balance
         if (amount > this.getBalance()) return false;
         else {
@@ -125,8 +125,22 @@ public class SecurityAccount extends Account {
         return true;
     }
 
-//    public boolean sellBond() {
-//    }
+    public boolean sellBond(String bondID, Date currentDate) {
+        DBHelper helper = new DBHelper();
+        ///get due date, update balance, return amount if not reach duedate
+        Date date1= new java.sql.Date(currentDate.getTime());
+        Date dueDate = helper.getBondDueDate(bondID, (java.sql.Date) date1);
+        if (dueDate.before(currentDate)) {
+            double amount = helper.getBondAmount(bondID, true);
+        } else {
+            double amount = helper.getBondAmount(bondID, false);
+        }
+
+        ////update investorBond and bondTransaction
+
+
+        return true;
+    }
 
 
     public String showAllInvestorBonds() throws SQLException{

@@ -1,6 +1,7 @@
 package Database;
 
 import java.sql.*;
+import java.util.Calendar;
 
 /**
  * This is a helper class writig data into database.
@@ -300,32 +301,140 @@ public class DBHelper {
 
 
     public static void addIntoInvestorBond(String bondID, double amount, Date buyDate) throws SQLException {
-        String companyName;
-        String type;
-        Date dueDate;
-
-
-
+        String companyName="";
+        String type="";
+        double yield=0;
+        Date dueDate=buyDate;
+        /////get three attributes by bondID
         try {
             Connection conn = DB.getConnection();
             statement = conn.createStatement();
 
-            String sql = "insert into investorBond values(?,?,?,?,?,?)";
+            String sql = "select * from bondMarket where bondID=?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, bondID);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()) {
+                companyName = rs.getString("CompanyName");
+                type = rs.getString("type");
+                yield = rs.getDouble("yield");
+            }
+
+            ///get due date
+            if (type.equals("OneWkBond")) {
+                Calendar rightNow = Calendar.getInstance();
+                rightNow.setTime(buyDate);
+                rightNow.add(Calendar.WEEK_OF_MONTH, 1);
+                dueDate = (java.sql.Date)rightNow.getTime();
+            }
+            if (type.equals("OneMonthBond")) {
+                Calendar rightNow = Calendar.getInstance();
+                rightNow.setTime(buyDate);
+                rightNow.add(Calendar.MONTH, 1);
+                dueDate = (java.sql.Date)rightNow.getTime();
+            }
+            if (type.equals("ThreeMonthBond")) {
+                Calendar rightNow = Calendar.getInstance();
+                rightNow.setTime(buyDate);
+                rightNow.add(Calendar.MONTH, 3);
+                dueDate = (java.sql.Date)rightNow.getTime();
+            }
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        ///write in investorBond
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql = "insert into investorBond values(?,?,?,?,?,?,?)";
             PreparedStatement ptmt = conn.prepareStatement(sql);
             ptmt.setString(1, bondID);
             ptmt.setString(2, companyName);
             ptmt.setString(3, type);
-            ptmt.setDouble(4, amount);
-            ptmt.setDate(5, buyDate);
-            ptmt.setDate(6, dueDate);
+            ptmt.setDouble(4, yield);
+            ptmt.setDouble(5, amount);
+            ptmt.setDate(6, buyDate);
+            ptmt.setDate(7, dueDate);
             ptmt.execute();
 
-            //System.out.println("succeed");
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+
+        ///write in bondTransaction
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql = "insert into bondTransaction values(?,?,?,?,?,?)";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, "buy");
+            ptmt.setString(2, bondID);
+            ptmt.setString(3, companyName);
+            ptmt.setString(4, type);
+            ptmt.setDouble(5, amount);
+            ptmt.setDate(6, buyDate);
+
+            ptmt.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
+    public static Date getBondDueDate(String bondID, Date date) {
+        Date dueDate=date;
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from investorBond where bondID=? and ";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, bondID);
+            ptmt.setDate(2, date);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()) {
+                dueDate = rs.getDate("dueDate");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dueDate;
+    }
+
+    public static double getBondAmount(String bondID, boolean includingInterest) {
+        double amount = 0;
+        double yield = 0;
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from investorBond where bondID=?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, bondID);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()) {
+                amount = rs.getDouble("price");
+                yield = rs.getDouble("yield");
+            }
+
+            if (includingInterest) {
+                amount = amount *(1 + yield);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return amount;
+    }
+
+    public static void sellBond(String bondID, Date sellDate) {
+
+
+    }
 
 
     public static String showAllInvestorBonds() throws SQLException {
@@ -333,6 +442,7 @@ public class DBHelper {
         String bondID;
         String companName;
         String type;
+        double yield;
         double price;
         Date buyDate;
         Date dueDate;
@@ -347,6 +457,7 @@ public class DBHelper {
                 bondID = rs.getString("bondID");
                 companName = rs.getString("companName");
                 type = rs.getString("type");
+                yield = rs.getDouble("yield");
                 price = rs.getDouble("price");
                 buyDate = rs.getDate("buyDate");
                 dueDate = rs.getDate("dueDate");;
