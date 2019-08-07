@@ -30,6 +30,7 @@ public class LogInFrame {
 
 	private JFrame frame;
 	private JPasswordField passwordField;
+	public static Date currentDate = new Date(2018,12,12);
 
 	/**
 	 * Launch the application.
@@ -116,6 +117,8 @@ public class LogInFrame {
 		lblEnterCurrentDate.setBounds(163, 378, 128, 33);
 		panel.add(lblEnterCurrentDate);
 		
+		JButton btnNextDay = new JButton("Next Day");
+		btnNextDay.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnNextDay.setBounds(514, 383, 128, 38);
 		panel.add(btnNextDay);
 		
@@ -125,12 +128,18 @@ public class LogInFrame {
 		lblWarningSignTriggers.setBounds(338, 197, 167, 33);
 		panel.add(lblWarningSignTriggers);
 		
-		SimpleDateFormat model = new SimpleDateFormat("dd.MM.yy");
-		JSpinner spinner  = new JSpinner(new SpinnerDateModel());
-		spinner.setEditor(new JSpinner.DateEditor(spinner, model.toPattern()));
-		spinner.setBounds(328, 378, 144, 44);
-		int day =(int) spinner.getValue();
-		panel.add(spinner);
+		
+		JTextPane textPane_1 = new JTextPane();
+		textPane_1.setBounds(319, 378, 36, 44);
+		panel.add(textPane_1);
+		
+		JTextPane textPane_2 = new JTextPane();
+		textPane_2.setBounds(367, 378, 36, 44);
+		panel.add(textPane_2);
+		
+		JTextPane textPane_3 = new JTextPane();
+		textPane_3.setBounds(416, 378, 82, 44);
+		panel.add(textPane_3);
 		
 		
 		
@@ -139,24 +148,41 @@ public class LogInFrame {
 				String username = textPane.getText();
 				String password = passwordField.getText();
 				
+				if(dateInput()) {
+					if(ManagerList.checkManagerIdentity(username, password) != null) {
+						//OPEN NEW JFRAME FOR MANAGER
+						ManagerFrame manager = new ManagerFrame(ManagerList.checkManagerIdentity(username, password));
+						frame.dispose();
+					}
+					else if(InvestorList.checkInvestorIdentity(username, password) != null) {
+						//OPEN NEW JFRAME FOR INVESTOR
+						CustomerFrame customer = new CustomerFrame(InvestorList.checkInvestorIdentity(username, password));
+						frame.dispose();
+					}
+					else
+						lblWarningSignTriggers.setText("This Account does not Exist");
+				}
 				
-				if(ManagerList.checkManagerIdentity(username, password) != null) {
-					//OPEN NEW JFRAME FOR MANAGER
-					ManagerFrame manager = new ManagerFrame(ManagerList.checkManagerIdentity(username, password));
-					frame.dispose();
-				}
-				else if(InvestorList.checkInvestorIdentity(username, password) != null) {
-					//OPEN NEW JFRAME FOR INVESTOR
-					CustomerFrame customer = new CustomerFrame(InvestorList.checkInvestorIdentity(username, password));
-					frame.dispose();
-				}
-				else
-					lblWarningSignTriggers.setText("This Account does not Exist");
+				
+			
 			}
+
+			private boolean dateInput() {
+				//Makes sure the month is between 0 and 13
+				Date test = new Date(Integer.parseInt(textPane_3.getText()), Integer.parseInt(textPane_2.getText())-1, Integer.parseInt(textPane_2.getText()));
+				if(test == null) {
+					return false;
+				}
+				else if(currentDate.compareTo(test) > 0) {
+					lblWarningSignTriggers.setText("Enter a Date after the date shown in  the parameter");
+					return false;
+				}
+				return true;
+			}
+			
 		});
 		
-		JButton btnNextDay = new JButton("Next Day");
-		btnNextDay.setFont(new Font("Tahoma", Font.PLAIN, 20));
+
 		btnNextDay.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
