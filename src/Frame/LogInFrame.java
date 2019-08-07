@@ -134,6 +134,7 @@ public class LogInFrame {
 			public void actionPerformed(ActionEvent e) {
 				String username = textPane.getText();
 				String password = passwordField.getText();
+				
 				if(checkManagerIdentity(username, password) != null) {
 					//OPEN NEW JFRAME FOR MANAGER
 					frame.dispose();
