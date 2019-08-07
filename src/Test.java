@@ -11,12 +11,19 @@ public class Test {
         SecurityAccount acc = new SecurityAccount(5000);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date d1 = dateFormat.parse("2019-11-10");
-        Date d2 = dateFormat.parse("2019-11-11");
-        acc.buyStock("aapl", 20, d1);
-        double a = acc.sellStock("aapl", 10, d2);
-        //acc.getAllStock();
-        acc.getAllTransaction();
+        Date d1 = dateFormat.parse("2019-11-15");
+        Date d2 = dateFormat.parse("2019-11-17");
+        //acc.buyStock("aapl", 20, d1);
+        //double a = acc.sellStock("aapl", 10, d2);
+        //String strAllStock = acc.getAllStock();
+//        int days = (int) (d1.getTime() - d2.getTime()) / 86400000;
+//        System.out.println(days);
+        //acc.getAllTransaction();
+        //double unrealizedBenefit = acc.getUnrealizedBenefit(d2);
+        //System.out.println(unrealizedBenefit);
+
+
+
 
         ///How to deal with date
 //        Date d1 = new Date();

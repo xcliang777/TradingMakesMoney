@@ -109,6 +109,7 @@ public class DBHelper {
             e.printStackTrace();
         }
 
+
         ///2.get buy price and calculate benefit.
         double benefit = 0;
         int shareHas =0;
@@ -145,6 +146,7 @@ public class DBHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
 
         ///3.update trasactionn table
         try {
@@ -197,7 +199,7 @@ public class DBHelper {
         return sb.toString();
     }
 
-    public static String getAllTransaction() {
+    public static String getAllStockTransaction() {
         StringBuilder sb = new StringBuilder();
         String buyOrSell;
         String ticker;
@@ -229,7 +231,205 @@ public class DBHelper {
         return sb.toString();
     }
 
+    public static Double getUnrealizedBenefit(Date date) throws SQLException {
+        double unrealizedBenefit=0;
+        double buyPrice;
+        String ticker;
+        int numShare;
+        double marketPrice;
 
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from investorStock";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                ticker = rs.getString("ticker");
+                buyPrice = rs.getDouble("buyPrice");
+                numShare = rs.getInt("numShare");
+                marketPrice = getMarketPrice(ticker, date);
+
+                unrealizedBenefit += numShare * (marketPrice - buyPrice);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return unrealizedBenefit;
+    }
+
+
+    public static double getMarketPrice(String ticker, Date date) {
+        double marketPrice = 0;
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockMarket where ticker=? and Date=?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, ticker);
+            ptmt.setDate(2, date);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()) {
+                marketPrice = rs.getDouble("Price");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return marketPrice;
+    }
+
+    public static String getCompanyName(String ticker) {
+        String companyName="";
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockMarket where ticker=?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, ticker);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()) {
+                companyName = rs.getString("CompanyName");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return companyName;
+    }
+
+
+
+    public static void addIntoInvestorBond(String bondID, double amount, Date buyDate) throws SQLException {
+        String companyName;
+        String type;
+        Date dueDate;
+
+
+
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql = "insert into investorBond values(?,?,?,?,?,?)";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, bondID);
+            ptmt.setString(2, companyName);
+            ptmt.setString(3, type);
+            ptmt.setDouble(4, amount);
+            ptmt.setDate(5, buyDate);
+            ptmt.setDate(6, dueDate);
+            ptmt.execute();
+
+            //System.out.println("succeed");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public static String showAllInvestorBonds() throws SQLException {
+        StringBuilder sb = new StringBuilder();
+        String bondID;
+        String companName;
+        String type;
+        double price;
+        Date buyDate;
+        Date dueDate;
+
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from investorBond";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                bondID = rs.getString("bondID");
+                companName = rs.getString("companName");
+                type = rs.getString("type");
+                price = rs.getDouble("price");
+                buyDate = rs.getDate("buyDate");
+                dueDate = rs.getDate("dueDate");;
+                sb.append("bondID: "+bondID+", companName: "+companName+", type: "+type+
+                        ", price: "+price+", buyDate: "+buyDate+", dueDate: "+dueDate+".\n");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+    public static String showAllBondTransaction() throws SQLException {
+        StringBuilder sb = new StringBuilder();
+        String buyOrSell;
+        String bondID;
+        String companyName;
+        String type;
+        double price;
+        Date date;
+
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+            String sql = "select * from stockTransaction";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ResultSet rs = ptmt.executeQuery();
+            while(rs.next()){
+                buyOrSell = rs.getString("buyOrSell");
+                bondID = rs.getString("bondID");
+                companyName = rs.getString("companyName");
+                type = rs.getString("type");
+                price = rs.getDouble("price");
+                if (buyOrSell.equals("buy")){
+                    date = rs.getDate("buyDate");
+                } else {
+                    date = rs.getDate("sellDate");
+                }
+                sb.append("Transaction: "+buyOrSell+", bondID: "+bondID+", companyName: "+companyName+
+                        ", type: "+type+", price: "+price+", date: "+date+".\n");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return sb.toString();
+    }
+
+
+
+    public static void deleteDatabaseInfo() {
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql1 = "delete from investorStock";
+            PreparedStatement ptmt1 = conn.prepareStatement(sql1);
+            ptmt1.execute();
+
+            String sql2 = "delete from investorBond";
+            PreparedStatement ptmt2 = conn.prepareStatement(sql2);
+            ptmt2.execute();
+
+            String sql3 = "delete from stockTrasaction";
+            PreparedStatement ptmt3 = conn.prepareStatement(sql3);
+            ptmt3.execute();
+
+            String sql4 = "delete from bondTrasaction";
+            PreparedStatement ptmt4 = conn.prepareStatement(sql4);
+            ptmt4.execute();
+
+            String sql5 = "delete from stockTransaction";
+            PreparedStatement ptmt5 = conn.prepareStatement(sql5);
+            ptmt5.execute();
+
+            String sql6 = "delete from bondMarket";
+            PreparedStatement ptmt6 = conn.prepareStatement(sql6);
+            ptmt6.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * used for method investorSellStockin this class

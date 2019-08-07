@@ -1,18 +1,28 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 /**
  * @description:
+ * loan : current date,
+ * calculate the loan + interest
+ * borrow new loan must have paid back the old one
  **/
 
 ///Still have to push the data into database in setLoan and repayment method.
 
 
 public class Loan {
+    ArrayList<Loan> loanList = new ArrayList<Loan>();
+
     private double collateral;
     private double loan;
     private double arrears;
+    private Date borrowDate;
 
-    private double loanRate = 1.1;
+
+    private double loanRate = 1.01;
 
     public Loan() {
         this.collateral = 0;
@@ -32,36 +42,28 @@ public class Loan {
         return loan;
     }
 
-
-    /**
-     * @Description:  Request a loan. We only offer USD loans
-     *               Return true if they have collateral, then add this to transaction.
-     *               Return false if they don't have enough collateral.
-     *
-     * @Param: [dayForLoan, loan]
-     * @return: boolean
-     */
-    public boolean setLoan(int dayforLoan, double loan) {
-        if (this.collateral >= loan) {
-            this.loan = loan;
-            ///transaction.addTransaction(dayforLoan, "Loan", "USD", loan, "loan");
-            return true;
-        }
-        return false;
-
+    public void setLoan(double loan) {
+        this.loan = loan;
     }
 
-    /**
-     * @Description:  Customer pay off his loan including interest.
-     * @Param: [dayForLoan, dayForRepayment]
-     * @return: void
-     */
-    public void repayment(int dayForLoan, int dayForRepayment) {
-        this.arrears = loan * Math.pow(loanRate, dayForRepayment - dayForLoan);
-        ///transaction.addTransaction(dayForRepayment, "Pay off", "USD", arrears, "loan");
-        this.loan = 0;
-        this.arrears = 0;
+    public double getLoanRate() {
+        return loanRate;
     }
 
+    public double getArrears() {
+        return arrears;
+    }
+
+    public void setArrears(double arrears) {
+        this.arrears = arrears;
+    }
+
+    public Date getBorrowDate() {
+        return borrowDate;
+    }
+
+    public void setBorrowDate(Date borrowDate) {
+        this.borrowDate = borrowDate;
+    }
 
 }

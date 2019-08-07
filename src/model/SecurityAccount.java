@@ -11,9 +11,6 @@ import java.util.Date;
  * @description: This is the class of security account which investor can buy/sell stocks.
  **/
 
-///unfinished
-///database looks like
-///   Ticker  companyName  numShare  buyDate  buyPrice  sellDate  sellPrice  benefit
 
 public class SecurityAccount extends Account {
     private double unrealizedBenefit;
@@ -56,7 +53,7 @@ public class SecurityAccount extends Account {
 
         ///3. write in table investorStock.
         ///write in table investorStock first
-        helper.addInvestorStock(ticker, "APPLE", numShare, stockPrice);
+        helper.addInvestorStock(ticker, companyName, numShare, stockPrice);
 
         ///write in table stockTransaction
         helper.addInvestorTransaction("buy", ticker, companyName, stockPrice, numShare, (java.sql.Date) date1, 0);
@@ -106,21 +103,47 @@ public class SecurityAccount extends Account {
      *get all transactions of the investor
      * @return: string (if there's 5 transactions, return a string of 5 rows)
      */
-    public String getAllTransaction() {
+    public String getAllStockTransaction() {
         DBHelper helper = new DBHelper();
-        String str = helper.getAllTransaction();
+        String str = helper.getAllStockTransaction();
         System.out.println(str);
         return str;
     }
 
 
-//    private boolean buyBond(Bond bond, Date date) {
+    private boolean buyBond(Double amount, String bondID, Date date) throws SQLException{
+        ///1.update balance
+        if (amount > this.getBalance()) return false;
+        else {
+            this.setBalance(getBalance() - amount);
+
+            ///2.write in table investorBond nad bondTransaction
+            DBHelper helper = new DBHelper();
+            helper.addIntoInvestorBond(bondID, amount, (java.sql.Date)date);
+
+        }
+        return true;
+    }
+
+//    public boolean sellBond() {
 //    }
 
-    public boolean sellBond
 
-    public void deleteDatabaseIfo() throws SQLException{
+    public String showAllInvestorBonds() throws SQLException{
         DBHelper helper = new DBHelper();
-        helper.deleteDatabaseIfo();
+        String str = helper.showAllInvestorBonds();
+        return str;
     }
+
+    public String showAllBondTransaction() throws SQLException{
+        DBHelper helper = new DBHelper();
+        String str = helper.showAllBondTransaction();
+        return str;
+    }
+
+    public void deleteDatabaseInfo() throws SQLException{
+        DBHelper helper = new DBHelper();
+        helper.deleteDatabaseInfo();
+    }
+
 }
