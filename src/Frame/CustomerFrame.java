@@ -6,6 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 
+
+/**
+ * @author plutowang
+ **/
+
 public class CustomerFrame extends JFrame implements ActionListener {
 
     JPanel jPanel1 = new JPanel();

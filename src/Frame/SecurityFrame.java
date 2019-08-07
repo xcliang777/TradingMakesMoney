@@ -3,6 +3,9 @@ package Frame;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * @author plutowang
+ **/
 public class SecurityFrame extends JFrame {
 
     JPanel jPanel1 = new JPanel();

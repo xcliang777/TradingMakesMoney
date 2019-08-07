@@ -5,6 +5,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * @author plutowang
+ **/
+
 public class BondInformationFrame extends JFrame implements ActionListener {
 
     JPanel jPanel1 = new JPanel();
