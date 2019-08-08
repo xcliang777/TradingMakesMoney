@@ -1,15 +1,21 @@
 package Frame;
 
+import model.Investor;
+import model.Market;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 /**
  * @author plutowang
  **/
 
 public class BondInformationFrame extends JFrame implements ActionListener {
+
+    Investor investor;
 
     JPanel jPanel1 = new JPanel();
     JPanel jPanel2 = new JPanel();
@@ -24,7 +30,9 @@ public class BondInformationFrame extends JFrame implements ActionListener {
     JTextArea jTextArea = new JTextArea("The information of Bonds: ");
 
 
-    BondInformationFrame(){
+    BondInformationFrame(Investor investor) throws SQLException {
+
+        this.investor = investor;
 
         this.setLayout(new GridLayout(1,2,0,0));
 
@@ -56,22 +64,36 @@ public class BondInformationFrame extends JFrame implements ActionListener {
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    }
-
-    public static void main(String[] args){
-
-        BondInformationFrame bondInformationFrame = new BondInformationFrame();
-
+        init();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource()==jButton1){
-            System.out.println("cancel");
+            this.dispose();
+            new SecurityFrame(investor);
         } else if (e.getSource()==jButton2){
-            System.out.println("sell");
+            String bondId = jTextField1.getText();
+            try {
+                investor.getSecurityAccount().sellBond(bondId,Market.curDate);
+                jTextField1.setText("");
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            try {
+                init();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
 
     }
+
+    public void init() throws SQLException {
+
+        jTextArea.setText(investor.getSecurityAccount().getAllInvestorBonds());
+
+    }
+
 }

@@ -1,4 +1,6 @@
 package Frame;
+import model.Manager;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -25,8 +27,8 @@ public class ManagerStockFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ManagerStockFrame window = new ManagerStockFrame();
-					window.frame.setVisible(true);
+					//ManagerStockFrame window = new ManagerStockFrame();
+					//window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -55,7 +57,7 @@ public class ManagerStockFrame {
 		frame.getContentPane().add(lblNewLabel);
 		
 		JTextArea txtrInformationAboutStock = new JTextArea();
-		txtrInformationAboutStock.setText(manager.seeAllStockTransaction);
+		//txtrInformationAboutStock.setText(manager.seeAllStockTransaction);
 		txtrInformationAboutStock.setBounds(211, 102, 346, 291);
 		frame.getContentPane().add(txtrInformationAboutStock);
 		

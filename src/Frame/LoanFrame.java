@@ -1,4 +1,7 @@
 package Frame;
+import model.Investor;
+import model.Market;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -10,6 +13,7 @@ import javax.swing.JLabel;
 
 public class LoanFrame {
 
+	Investor investor;
 	private JFrame frame;
 	private JTextField textField;
 
@@ -20,8 +24,8 @@ public class LoanFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					LoanFrame window = new LoanFrame();
-					window.frame.setVisible(true);
+					//LoanFrame window = new LoanFrame();
+					//window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -32,7 +36,8 @@ public class LoanFrame {
 	/**
 	 * Create the application.
 	 */
-	public LoanFrame() {
+	public LoanFrame(Investor investor) {
+		this.investor = investor;
 		initialize();
 	}
 
@@ -46,10 +51,6 @@ public class LoanFrame {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-		JButton button = new JButton("Log Off");
-		button.setBounds(571, 24, 171, 41);
-		frame.getContentPane().add(button);
-		
 		textField = new JTextField();
 		textField.setBounds(182, 227, 236, 39);
 		frame.getContentPane().add(textField);
@@ -58,6 +59,8 @@ public class LoanFrame {
 		JButton button_1 = new JButton("Go Back");
 		button_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				frame.dispose();
+				new CustomerFrame(investor);
 			}
 		});
 		button_1.setBounds(571, 86, 171, 41);
@@ -66,7 +69,7 @@ public class LoanFrame {
 		JButton btnBorrow = new JButton("Borrow");
 		btnBorrow.setBounds(434, 226, 171, 41);
 		frame.getContentPane().add(btnBorrow);
-		
+
 		JButton button_2 = new JButton("Pay Back");
 		button_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -75,14 +78,32 @@ public class LoanFrame {
 		button_2.setBounds(309, 296, 171, 41);
 		frame.getContentPane().add(button_2);
 
-		JLabel lblNewLabel = new JLabel("You currently owe:) + lblNewLabel");
+
+
+
+		JLabel lblNewLabel = new JLabel("You currently owe: " + investor.getCheckingAccount().amountToPayBack(Market.curDate));
 		lblNewLabel.setBounds(182, 168, 331, 41);
 		frame.getContentPane().add(lblNewLabel);
+
+
+		button_2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				investor.getCheckingAccount().repayment(Market.curDate);
+				lblNewLabel.setText("You currently owe: " + investor.getCheckingAccount().amountToPayBack(Market.curDate));
+			}
+		});
 		
 		btnBorrow.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				double change = Double.parseDouble(textField.getText());
+				double amount = Double.parseDouble(textField.getText());
+				investor.getCheckingAccount().borrowLoan(1000000,amount, Market.curDate);
+				lblNewLabel.setText("You currently owe: " + investor.getCheckingAccount().amountToPayBack(Market.curDate));
 			}
 		});
+
+
+		frame.setVisible(true);
+
 	}
 }

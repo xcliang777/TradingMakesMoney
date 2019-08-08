@@ -1,15 +1,22 @@
 package Frame;
 
+import model.BondMarket;
+import model.Investor;
+import model.Market;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 /**
  * @author plutowang
  **/
 
 public class BuyBondFrame extends JFrame implements ActionListener {
+
+    Investor investor;
 
     JPanel jPanel1 = new JPanel();
     JPanel jPanel2 = new JPanel();
@@ -24,7 +31,9 @@ public class BuyBondFrame extends JFrame implements ActionListener {
     JTextArea jTextArea = new JTextArea("The information of All Bonds: ");
 
 
-    BuyBondFrame(){
+    BuyBondFrame(Investor investor) throws SQLException {
+
+        this.investor = investor;
 
         this.setLayout(new GridLayout(1,2,0,0));
 
@@ -47,6 +56,7 @@ public class BuyBondFrame extends JFrame implements ActionListener {
         jButton1.addActionListener(this);
         jButton2.addActionListener(this);
 
+        init();
 
 
         this.add(jPanel1);
@@ -58,20 +68,27 @@ public class BuyBondFrame extends JFrame implements ActionListener {
 
     }
 
-    public static void main(String[] args){
-
-        BuyBondFrame buyBondFrame = new BuyBondFrame();
-
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource()==jButton1){
-            System.out.println("cancel");
+            this.dispose();
+            new SecurityFrame(investor);
         } else if (e.getSource()==jButton2){
-            System.out.println("buy");
+
+            String bondID = jTextField1.getText();
+            try {
+                investor.getSecurityAccount().buyBond(bondID, Market.curDate);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
+
+    }
+
+    public void init() throws SQLException {
+
+        jTextArea.setText(BondMarket.getAllBond());
 
     }
 }

@@ -1,4 +1,6 @@
 package Frame;
+import model.Investor;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -15,26 +17,13 @@ public class CustomerCheckingsFrame {
 	private JTextField textField;
 	private JTextField textField_1;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					CustomerCheckingsFrame window = new CustomerCheckingsFrame();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	Investor investor;
 
 	/**
 	 * Create the application.
 	 */
-	public CustomerCheckingsFrame() {
+	public CustomerCheckingsFrame(Investor investor) {
+		this.investor = investor;
 		initialize();
 	}
 
@@ -54,6 +43,10 @@ public class CustomerCheckingsFrame {
 		frame.getContentPane().add(lblCheckings);
 		
 		JLabel lblWelcomeUserCurrent = new JLabel("Welcome User, current balance is");
+
+		lblWelcomeUserCurrent.setText("Welcome " + investor.getId() + ". Your balance is " + investor.getCheckingAccount().getBalance());
+
+
 		lblWelcomeUserCurrent.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblWelcomeUserCurrent.setBounds(37, 85, 259, 33);
 		frame.getContentPane().add(lblWelcomeUserCurrent);
@@ -71,13 +64,47 @@ public class CustomerCheckingsFrame {
 		JButton btnDeposit = new JButton("Deposit");
 		btnDeposit.setBounds(438, 199, 171, 41);
 		frame.getContentPane().add(btnDeposit);
+
+		btnDeposit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				double amount = Double.parseDouble(textField.getText());
+				investor.getCheckingAccount().deposit(amount);
+				lblWelcomeUserCurrent.setText("Welcome " + investor.getId() + ". Your balance is " + investor.getCheckingAccount().getBalance());
+				textField.setText("");
+			}
+		});
+
 		
 		JButton button = new JButton("Withdraw");
 		button.setBounds(438, 303, 171, 41);
 		frame.getContentPane().add(button);
+
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				double amount = Double.parseDouble(textField_1.getText());
+				if (investor.getCheckingAccount().withdraw(amount)){
+					lblWelcomeUserCurrent.setText("Welcome " + investor.getId() + ". Your balance is " + investor.getCheckingAccount().getBalance());
+					textField_1.setText("");
+				}
+			}
+		});
+
 		
-		JButton btnLogOff = new JButton("Log Off");
+		JButton btnLogOff = new JButton("Back");
 		btnLogOff.setBounds(571, 24, 171, 41);
+
+		btnLogOff.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				frame.dispose();
+				new CustomerFrame(investor);
+			}
+		});
+
+
 		frame.getContentPane().add(btnLogOff);
+		frame.setVisible(true);
 	}
 }

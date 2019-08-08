@@ -1,12 +1,20 @@
 package Frame;
 
+import model.Investor;
+import model.Market;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 /**
  * @author plutowang
  **/
-public class SecurityFrame extends JFrame {
+public class SecurityFrame extends JFrame implements ActionListener {
+
+    Investor investor;
 
     JPanel jPanel1 = new JPanel();
     JPanel jPanel2 = new JPanel();
@@ -16,7 +24,6 @@ public class SecurityFrame extends JFrame {
     JLabel jLabel1 = new JLabel("Security Account");
     JLabel jLabel2 = new JLabel("You current have 500$");
     JLabel jLabel3 = new JLabel("Unrealized benefit");
-    JLabel jLabel4 = new JLabel("Realized benefit");
 
     JTextField jTextField = new JTextField();
 
@@ -25,12 +32,14 @@ public class SecurityFrame extends JFrame {
     JButton jButton3 = new JButton("Buy Stock");
     JButton jButton4 = new JButton("Buy Bonds");;
     JButton jButton5 = new JButton("Transfer");
-    JButton jButton6 = new JButton("Log out");
+    JButton jButton6 = new JButton("Back");
 
 
 
 
-    SecurityFrame(){
+    SecurityFrame(Investor investor){
+
+        this.investor = investor;
 
         this.setLayout(null);
 
@@ -65,15 +74,26 @@ public class SecurityFrame extends JFrame {
 
         jPanel4.setLayout(null);
         jLabel3.setBounds(50,0,400,150);
-        jLabel4.setBounds(450,0,400,150);
         jPanel4.add(jLabel3);
-        jPanel4.add(jLabel4);
 
 
         this.add(jPanel1);
         this.add(jPanel2);
         this.add(jPanel3);
         this.add(jPanel4);
+
+        jButton1.addActionListener(this);
+        jButton2.addActionListener(this);
+        jButton3.addActionListener(this);
+        jButton4.addActionListener(this);
+        jButton5.addActionListener(this);
+        jButton6.addActionListener(this);
+
+        try {
+            init();
+        }catch (Exception e){
+
+        }
 
 
         this.setLayout(null);
@@ -83,12 +103,63 @@ public class SecurityFrame extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    public void init() throws  SQLException{
 
-    public static void main(String[] args){
+        jLabel2.setText("You currently have " + investor.getSecurityAccount().getBalance());
 
-        SecurityFrame securityFrame = new SecurityFrame();
+
+        String str;
+
+        jLabel3.setText("Unrealized benefit: " + investor.getSecurityAccount().getUnrealizedBenefit(Market.curDate));
 
     }
 
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()==jButton1){
+            System.out.println("Check Stock");
+            this.dispose();
+            try {
+                new StockInformationFrame(investor);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else if (e.getSource()==jButton2){
+            this.dispose();
+            try {
+                new BondInformationFrame(investor);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else if (e.getSource()==jButton3){
+            this.dispose();
+            try {
+                new BuyStockFrame(investor);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else if (e.getSource()==jButton4){
+            this.dispose();
+            try {
+                new BuyBondFrame(investor);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else if (e.getSource()==jButton5){
+            double amount = Double.parseDouble(jTextField.getText());
+            investor.transfer(amount);
+            jLabel2.setText("You currently have " + investor.getSecurityAccount().getBalance());
+            jTextField.setText("");
+
+        }
+        else if (e.getSource()==jButton6){
+            this.dispose();
+            new CustomerFrame(investor);
+        }
+    }
 }

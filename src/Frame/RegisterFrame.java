@@ -1,12 +1,18 @@
 package Frame;
 
+import model.Investor;
+import model.InvestorList;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 
 /**
  * @author plutowang
  **/
-public class RegisterFrame extends JFrame {
+public class RegisterFrame extends JFrame implements ActionListener {
 
     JPanel jPanel1 = new JPanel();
     JPanel jPanel2 = new JPanel();
@@ -54,6 +60,9 @@ public class RegisterFrame extends JFrame {
         this.add(jPanel2);
         this.add(jPanel3);
 
+        jButton1.addActionListener(this);
+        jButton2.addActionListener(this);
+
         this.setLayout(null);
         this.setBounds(300,100,800,600);
         this.setResizable(false);
@@ -68,4 +77,34 @@ public class RegisterFrame extends JFrame {
     }
 
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()==jButton1){
+            this.dispose();
+            try {
+                new LogInFrame();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }else if (e.getSource()==jButton2){
+
+            String name = jTextField1.getText();
+            String password = String.valueOf(jPasswordField1.getPassword());
+            Investor investor = new Investor(name,password);
+
+
+            InvestorList.investorList.add(investor);
+            System.out.println(InvestorList.investorList.size());
+
+            this.dispose();
+            //new CustomerFrame(InvestorList.checkInvestorIdentity(name, password));
+            try {
+                new LogInFrame();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+        }
+
+    }
 }

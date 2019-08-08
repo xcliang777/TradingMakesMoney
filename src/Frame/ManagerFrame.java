@@ -1,9 +1,14 @@
 package Frame;
 
+import model.Investor;
+import model.InvestorList;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * @author plutowang
@@ -28,7 +33,7 @@ public class ManagerFrame extends JFrame implements ActionListener {
 
 
 
-    ManagerFrame(){
+    ManagerFrame() throws SQLException {
 
         this.setLayout(null);
 
@@ -62,27 +67,49 @@ public class ManagerFrame extends JFrame implements ActionListener {
         jButton.setBounds(400,0,100,30);
         jPanel5.add(jButton);
 
+        jButton.addActionListener(this);
+
         this.add(jPanel1);
         this.add(jPanel5);
+
+        info();
 
         this.setBounds(300,100,800,600);
         this.setResizable(false);
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
     }
 
-    public static void main(String[] args){
+    private void info() throws SQLException {
 
-        ManagerFrame managerFrame = new ManagerFrame();
+        Investor investor = new Investor("234","234");
+        String ts = investor.getSecurityAccount().getAllStockTransaction();
+        String tb = investor.getSecurityAccount().getAllBondTransaction();
+
+        StringBuilder stringBuilder = new StringBuilder("");
+        for (int i=0;i<InvestorList.investorList.size();i++){
+         stringBuilder.append(InvestorList.investorList.get(i).getId()+"\n");
+        }
+
+        jTextArea1.setText(stringBuilder.toString());
+        jTextArea2.setText(ts);
+        jTextArea3.setText(tb);
+
+
+
 
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource()==jButton){
-            System.out.println("back");
+            this.dispose();
+            try {
+                new LogInFrame();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

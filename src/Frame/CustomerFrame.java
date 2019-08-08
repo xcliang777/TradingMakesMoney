@@ -3,11 +3,16 @@ package Frame;
 import javax.swing.*;
 
 import model.Investor;
+import model.Market;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 
 
 /**
@@ -15,6 +20,8 @@ import java.text.SimpleDateFormat;
  **/
 
 public class CustomerFrame extends JFrame implements ActionListener {
+
+    Investor investor;
 
     JPanel jPanel1 = new JPanel();
     JPanel jPanel2 = new JPanel();
@@ -36,7 +43,10 @@ public class CustomerFrame extends JFrame implements ActionListener {
 
 
 
-    CustomerFrame(Investor a){
+
+    CustomerFrame(Investor investor) {
+
+        this.investor = investor;
 
         jPanel1.setBounds(0,0,800,120);
         jPanel2.setBounds(0,120,800,120);
@@ -91,6 +101,8 @@ public class CustomerFrame extends JFrame implements ActionListener {
         jButton5.addActionListener(this);
         jButton6.addActionListener(this);
 
+        init();
+
         this.setLayout(null);
         this.setBounds(300,100,800,600);
         this.setResizable(false);
@@ -99,9 +111,18 @@ public class CustomerFrame extends JFrame implements ActionListener {
 
     }
 
+    private void init() {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        String str = "Today is " +  dateFormat.format(Market.curDate) + ". Welcome " + investor.getId();
+        jLabel1.setText(str);
+
+    }
+
     public static void main(String[] args){
 
-        CustomerFrame customerFrame = new CustomerFrame();
+        //CustomerFrame customerFrame = new CustomerFrame();
 
     }
 
@@ -110,16 +131,31 @@ public class CustomerFrame extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource()==jButton1){
             System.out.println("Log out");
+            this.dispose();
+            try {
+                new LogInFrame();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
         }else if (e.getSource()==jButton2){
             System.out.println("Next day");
         }else if (e.getSource()==jButton3){
-            System.out.println("Checking Account");
+            this.dispose();
+            new CustomerCheckingsFrame(investor);
+
         }else if (e.getSource()==jButton4){
-            System.out.println("Saving Account");
+            this.dispose();
+            new CustomerSavingsFrame(investor);
+
         }else if (e.getSource()==jButton5){
-            System.out.println("Security Account");
+
+            //JOptionPane.showMessageDialog(getParent(), "Create a new security account");
+            this.dispose();
+            new SecurityFrame(investor);
         }else if (e.getSource()==jButton6){
-            System.out.println("Loans");
+            this.dispose();
+            new LoanFrame(investor);
         }
     }
 }
