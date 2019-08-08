@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 public class BondMarket extends Market {
 
-	BondMarket(double tf) {
+	public BondMarket(double tf) {
 		super(tf);
 	}
 
@@ -23,6 +23,15 @@ public class BondMarket extends Market {
 		double yield = toAdd.getYield();
 		//Needs to be written
 		helper.addMarketBond(companyName, type, yield, price, bondID);
+		return true;
+	}
+
+	public boolean removeBond(String bondID) throws SQLException{
+		if (!this.hasBond(bondID)) {
+			return false;
+		}
+		DBHelper helper = new DBHelper();
+		helper.removeMarketBond(bondID);
 		return true;
 	}
 
@@ -45,7 +54,7 @@ public class BondMarket extends Market {
 		return false;
 	}
 
-	public String getAllBond(){
+	public static String getAllBond() throws SQLException {
 		DBHelper helper = new DBHelper();
 		return helper.getAllMarketBond();
 	}

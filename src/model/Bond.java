@@ -19,7 +19,7 @@ public abstract class Bond {
 		price = p;
 		yield = ir;
 		bondID = b;
-		dateBought = Market.today;
+		dateBought = Market.marketDate;
 	}
 
 	//public double getInterestRate() {}

@@ -92,7 +92,7 @@ public class SecurityAccount extends Account {
      * get all stock information of a investor.
      * @return a string of all stock investor has.
      */
-    public String getAllStock() {
+    public String getAllStock() throws SQLException {
         DBHelper helper = new DBHelper();
         String str = helper.getAllStock();
         return str;
@@ -111,18 +111,16 @@ public class SecurityAccount extends Account {
     }
 
 
-    public boolean buyBond(Double amount, String bondID, Date date) throws SQLException{
+    public boolean buyBond(String bondID, Date date) throws SQLException{
         ///1.update balance
-        if (amount > this.getBalance()) return false;
-        else {
-            this.setBalance(getBalance() - amount);
-
+            double amount;
+            Date date1= new java.sql.Date(date.getTime());
             ///2.write in table investorBond nad bondTransaction
             DBHelper helper = new DBHelper();
-            helper.addIntoInvestorBond(bondID, amount, (java.sql.Date)date);
+            amount = helper.addIntoInvestorBond(bondID, (java.sql.Date)date1);
 
-        }
-        return true;
+            setBalance(getBalance() - amount);
+            return true;
     }
 
     public boolean sellBond(String bondID, Date currentDate) throws SQLException{
@@ -140,20 +138,20 @@ public class SecurityAccount extends Account {
         setBalance(getBalance() + amount);
 
         ////update investorBond and bondTransaction
-        helper.sellBond(bondID, (java.sql.Date)currentDate, amount);
+        helper.sellBond(bondID, (java.sql.Date)date1, amount);
 
 
         return true;
     }
 
 
-    public String showAllInvestorBonds() throws SQLException{
+    public String getAllInvestorBonds() throws SQLException{
         DBHelper helper = new DBHelper();
         String str = helper.showAllInvestorBonds();
         return str;
     }
 
-    public String showAllBondTransaction() throws SQLException{
+    public String getAllBondTransaction() throws SQLException{
         DBHelper helper = new DBHelper();
         String str = helper.showAllBondTransaction();
         return str;

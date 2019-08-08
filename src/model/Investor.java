@@ -33,7 +33,7 @@ public class Investor extends Person {
      * @param amount
      * @return
      */
-    public boolean Transfer(double amount) {
+    public boolean transfer(double amount) {
         double checkingBalance = this.getCheckingAccount().getBalance();
         double securityBalance = this.getSecurityAccount().getBalance();
         //return false if transfer too much

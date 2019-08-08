@@ -21,7 +21,7 @@ public class OneMonthBond extends Bond{
 	}
 
 	public boolean isTotalDue() {
-		if(Market.today.compareTo(maturityDate) == 0) {
+		if(Market.marketDate.compareTo(maturityDate) == 0) {
 			return true;
 		}
 		return false;
