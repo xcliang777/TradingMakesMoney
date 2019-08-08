@@ -14,6 +14,24 @@ public class DBHelper {
     static Statement statement = null;
     static ResultSet resultSet = null;
 
+    public static void initStockMarket() throws SQLException {
+        try {
+            Connection conn = DB.getConnection();
+            statement = conn.createStatement();
+
+            String sql1 = "insert into stockMarket values(?,?,?,?)";
+            PreparedStatement ptmt1 = conn.prepareStatement(sql1);
+
+            ptmt1.execute();
+
+            //System.out.println("succeed");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
     public static void addInvestorStock(String ticker, String companyName, int numShare, double buyPrice) throws SQLException{
         try {
             Connection conn = DB.getConnection();
@@ -72,6 +90,33 @@ public class DBHelper {
         }
     }
 
+    public static void removeMarketStock(String ticker) throws SQLException {
+        try {
+            Connection conn = DB.getConnection();
+            String sql = "delete from stockMarket where Ticker = ?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, ticker);
+
+            ptmt.execute();
+
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeMarketBond(String bondID) throws SQLException{
+        try {
+            Connection conn = DB.getConnection();
+            String sql = "delete from bondMarket where bondID = ?";
+            PreparedStatement ptmt = conn.prepareStatement(sql);
+            ptmt.setString(1, bondID);
+
+            ptmt.execute();
+
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * Will return a copy of the bond that represents the bondID
      * If the market doesn't contain that bond, it will return an empty bond.
@@ -215,7 +260,6 @@ public class DBHelper {
             String sql = "select * from stockMarket";
             PreparedStatement ptmt = conn.prepareStatement(sql);
             ResultSet rs = ptmt.executeQuery();
-            //Needs to be fixed.
             while(rs.next()){
                 //get fields
                 date = rs.getDate("Date");
@@ -227,10 +271,36 @@ public class DBHelper {
                 double randPercent = ThreadLocalRandom.current().nextDouble(-0.05, 0.05);
                 randPercent = Math.round(randPercent * 10000.0)/ 10000.0;
                 double newPrice = (price * randPercent) + price;
+                newPrice = (Math.round(newPrice) * 100) / 100;
 
-                rs.updateDate("Date", newDate);
-                rs.updateDouble("Price", newPrice);
+                try {
+                    Connection conn1 = DB.getConnection();
+                    statement = conn1.createStatement();
 
+                    String sql1 = "update stockMarket set price=? where ticker=?";
+                    PreparedStatement ptmt1 = conn1.prepareStatement(sql1);
+                    ptmt1.setDouble(1, newPrice);
+                    ptmt1.setString(2, ticker);
+                    ptmt1.execute();
+
+                    //System.out.println("succeed");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    Connection conn2 = DB.getConnection();
+                    statement = conn2.createStatement();
+
+                    String sql2 = "update stockMarket set date=? where ticker=?";
+                    PreparedStatement ptmt2 = conn2.prepareStatement(sql2);
+                    ptmt2.setDate(1, newDate);
+                    ptmt2.setString(2, ticker);
+                    ptmt2.execute();
+
+                    //System.out.println("succeed");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -265,19 +335,55 @@ public class DBHelper {
                 double randPercent = ThreadLocalRandom.current().nextDouble(-0.05, 0.05);
                 randPercent = Math.round(randPercent * 10000.0)/ 10000.0;
                 double newPrice = (price * randPercent) + price;
+                newPrice = Math.round(newPrice * 100) / 100;
                 double newYield = yield;
 
                 //if the percent change in price is negative, yield should go up and vice versa
-                if ((newYield - randPercent) <= 0) {
+                if ((newYield - 0.01) <= 0) {
                     newYield = 0.01;
                 }
+                else if ((newYield + 0.01) >= 1) {
+                    newYield = 0.99;
+                }
+                else if (randPercent <= 0){
+                    newYield += 0.01;
+                }
                 else {
-                    newYield -= randPercent;
+                    newYield -= 0.01;
                 }
 
+
+
                 //update table
-                rs.updateDouble("price", newPrice);
-                rs.updateDouble("yield", newYield);
+                try {
+                    Connection conn1 = DB.getConnection();
+                    statement = conn1.createStatement();
+
+                    String sql1 = "update bondMarket set price=? where bondID=?";
+                    PreparedStatement ptmt1 = conn1.prepareStatement(sql1);
+                    ptmt1.setDouble(1,newPrice);
+                    ptmt1.setString(2, bondID);
+                    ptmt1.execute();
+
+                    //System.out.println("succeed");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    Connection conn2 = DB.getConnection();
+                    statement = conn2.createStatement();
+
+                    String sql2 = "update bondMarket set yield=? where bondID=?";
+                    PreparedStatement ptmt2 = conn2.prepareStatement(sql2);
+                    ptmt2.setDouble(1,newYield);
+                    ptmt2.setString(2, bondID);
+                    ptmt2.execute();
+
+                    //System.out.println("succeed");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
 
             }
         } catch (SQLException e) {
@@ -285,7 +391,7 @@ public class DBHelper {
         }
     }
 
-    public static String getAllMarketStock() {
+    public static String getAllMarketStock() throws SQLException{
         StringBuilder sb = new StringBuilder();
         Date date;
         String companyName;
@@ -303,7 +409,7 @@ public class DBHelper {
                 companyName = rs.getString("CompanyName");
                 ticker = rs.getString("Ticker");
                 price = rs.getDouble("Price");
-                sb.append("date: " + date + ", companyName: " + companyName + ", ticker: " + ticker +
+                sb.append("date: " + date + ", companyName: " + companyName + ",\n    ticker: " + ticker +
                         ", price: " + price + ".\n");
             }
         } catch (SQLException e) {
@@ -312,13 +418,16 @@ public class DBHelper {
         return sb.toString();
     }
 
-    public static String getAllMarketBond() {
+    public static String getAllMarketBond() throws SQLException{
         StringBuilder sb = new StringBuilder();
         String companyName;
         String type;
         double yield;
         double price;
         String bondID;
+
+        DBHelper helper = new DBHelper();
+        helper.updateBondMarket();
 
         try {
             Connection conn = DB.getConnection();
@@ -333,7 +442,7 @@ public class DBHelper {
                 price = rs.getDouble("price");
                 bondID = rs.getString("bondID");
                 sb.append("companyName: " + companyName + ", type: " + type +
-                        ", yield: " + yield + ", price: " + price + ", bondID: " + bondID + ".\n");
+                        ",\n    yield: " + yield + ", price: " + price + ", bondID: " + bondID + ".\n");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -462,13 +571,15 @@ public class DBHelper {
         return benefit;
     }
 
-    public static String getAllStock(){
+    public static String getAllStock() throws SQLException{
         StringBuilder sb = new StringBuilder();
         String ticker;
         String companyName;
         int numShare;
         double buyPrice;
-
+        Date date = new java.sql.Date(Market.curDate.getTime());
+        DBHelper helper = new DBHelper();
+        helper.updateStockMarket((java.sql.Date)date);
         try {
             Connection conn = DB.getConnection();
             statement = conn.createStatement();
@@ -480,7 +591,7 @@ public class DBHelper {
                 companyName = rs.getString("companyName");
                 numShare = rs.getInt("numShare");
                 buyPrice = rs.getDouble("buyPrice");
-                sb.append("companyName: " + companyName + ", ticker: " + ticker + ", numShare: " + numShare +
+                sb.append("companyName: " + companyName + ", ticker: " + ticker + ",\n    numShare: " + numShare +
                         ", buyPrice: " + buyPrice + ".\n");
             }
         } catch (SQLException e) {
@@ -512,7 +623,7 @@ public class DBHelper {
                 date = rs.getDate("date");
                 benefit = rs.getDouble("benefit");
                 sb.append("Transaction: "+buyOrSell+", ticker: "+ticker+", companyName: "+companyName+
-                        ", price: "+price+", date: "+date+", benefit: "+benefit+".\n");
+                        ",\n    price: "+price+", date: "+date+", benefit: "+benefit+".\n");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -589,11 +700,12 @@ public class DBHelper {
 
 
 
-    public static void addIntoInvestorBond(String bondID, double amount, Date buyDate) throws SQLException {
+    public static double addIntoInvestorBond(String bondID, Date buyDate) throws SQLException {
         String companyName="";
         String type="";
+        double amount=0;
         double yield=0;
-        Date dueDate=buyDate;
+        java.sql.Date dueDate = buyDate;
         /////get three attributes by bondID
         try {
             Connection conn = DB.getConnection();
@@ -607,6 +719,7 @@ public class DBHelper {
                 companyName = rs.getString("CompanyName");
                 type = rs.getString("type");
                 yield = rs.getDouble("yield");
+                amount = rs.getDouble("price");
             }
 
             ///get due date
@@ -614,19 +727,22 @@ public class DBHelper {
                 Calendar rightNow = Calendar.getInstance();
                 rightNow.setTime(buyDate);
                 rightNow.add(Calendar.WEEK_OF_MONTH, 1);
-                dueDate = (java.sql.Date)rightNow.getTime();
+                java.util.Date utilStartDate =rightNow.getTime();
+                dueDate = new java.sql.Date(utilStartDate.getTime());
             }
             if (type.equals("OneMonthBond")) {
                 Calendar rightNow = Calendar.getInstance();
                 rightNow.setTime(buyDate);
                 rightNow.add(Calendar.MONTH, 1);
-                dueDate = (java.sql.Date)rightNow.getTime();
+                java.util.Date utilStartDate =rightNow.getTime();
+                dueDate = new java.sql.Date(utilStartDate.getTime());
             }
             if (type.equals("ThreeMonthBond")) {
                 Calendar rightNow = Calendar.getInstance();
                 rightNow.setTime(buyDate);
                 rightNow.add(Calendar.MONTH, 3);
-                dueDate = (java.sql.Date)rightNow.getTime();
+                java.util.Date utilStartDate =rightNow.getTime();
+                dueDate = new java.sql.Date(utilStartDate.getTime());
             }
 
 
@@ -674,7 +790,7 @@ public class DBHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
+        return amount;
     }
 
     public static Date getBondDueDate(String bondID, Date date) {
@@ -682,10 +798,9 @@ public class DBHelper {
         try {
             Connection conn = DB.getConnection();
             statement = conn.createStatement();
-            String sql = "select * from investorBond where bondID=? and ";
+            String sql = "select * from investorBond where bondID=?";
             PreparedStatement ptmt = conn.prepareStatement(sql);
             ptmt.setString(1, bondID);
-            ptmt.setDate(2, date);
             ResultSet rs = ptmt.executeQuery();
             while(rs.next()) {
                 dueDate = rs.getDate("dueDate");
@@ -793,14 +908,14 @@ public class DBHelper {
             ResultSet rs = ptmt.executeQuery();
             while(rs.next()){
                 bondID = rs.getString("bondID");
-                companName = rs.getString("companName");
+                companName = rs.getString("companyName");
                 type = rs.getString("type");
                 yield = rs.getDouble("yield");
                 price = rs.getDouble("price");
                 buyDate = rs.getDate("buyDate");
                 dueDate = rs.getDate("dueDate");;
                 sb.append("bondID: "+bondID+", companName: "+companName+", type: "+type+
-                        ", price: "+price+", buyDate: "+buyDate+", dueDate: "+dueDate+".\n");
+                        ",\n    price: "+price+", buyDate: "+buyDate+", dueDate: "+dueDate+".\n");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -829,13 +944,9 @@ public class DBHelper {
                 companyName = rs.getString("companyName");
                 type = rs.getString("type");
                 price = rs.getDouble("price");
-                if (buyOrSell.equals("buy")){
-                    date = rs.getDate("buyDate");
-                } else {
-                    date = rs.getDate("sellDate");
-                }
+                date = rs.getDate("date");
                 sb.append("Transaction: "+buyOrSell+", bondID: "+bondID+", companyName: "+companyName+
-                        ", type: "+type+", price: "+price+", date: "+date+".\n");
+                        ",\n    type: "+type+", price: "+price+", date: "+date+".\n");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -843,8 +954,6 @@ public class DBHelper {
 
         return sb.toString();
     }
-
-
 
     public static void deleteDatabaseInfo() {
         try {
